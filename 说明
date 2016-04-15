@@ -1,0 +1,36 @@
+介绍
+这个壳的核心——字节码解释器，它参考了dalvik虚拟机的解释器。不需要hook、注入。目前只支持算数运算指令。
+
+我个人把dalviki指令分为这么几类：
+
+算数运算指令。
+引用类指令。如const-string、invoke-kind，这类指令需要引用dex的资源。
+其他指令
+
+解释执行算数运算指令较为简单。
+引用类指令的实现需要解析dex文件的格式，把class、method、field、string等数据解析一遍，保证可以找到这些数据，那么引用类指令的解释执行就可以实现，这个是我准备要做的。
+虽然现在还比较简陋，但是能运行了，下面有源码放出
+
+关于dalvik虚拟机如何解释执行opcode我有一些分析，有兴趣的可以瞅瞅~
+dalvik虚拟机解释执行字节码
+【分析】生成dalvik解释器原文件的脚本：gen-mterp.py
+dalvik虚拟机启动过程（一共有3篇）
+
+这个壳叫advmp，最初的名字是avmp，意思是Android VMP，但是想了想不敢称VMP啊，因为虽然代码中字节码实现了解释执行，但是也要结合dalvik，而且代码中借鉴了dalvik的源码，所以中间加了个D，向dalvik致敬。
+
+例子
+压缩包中有一个buwaishell.jar文件，可以用它来加壳，是不是有点激动，想试一试！
+可惜你想多了，它目前只对一个APK有效，就是压缩包中的 AndroidHelloWorld.apk文件，在命令行下使用命令"java -jar buwaishell.jar -s .\AndroidHelloWorld.apk -o ."，然后就会生成一个AndroidHelloWorld.shelled.apk文件。
+那么buwaishell.jar到底做了什么哪？它把APK中的一个方法变成了native，然后把这个方法的指令抽取了出来，这个指令很简单，就是一个加法指令，然后当APK运行的时候会在解释器里执行抽取出来的指令，然后得出正确的结果。
+[*例子：advmp.zip.*]
+
+源码目录说明
+AdvmpTest：测试用的项目。
+base：Java项目。里面是一些工具类代码。
+control-centre：Java项目。控制加固流程。
+separator：Java项目。抽离方法指令，然后将抽离的指令按照自定义格式输出，并同时输出C文件。
+template/jni：C代码。里面包含了解释器的代码。
+ycformat：自定义的文件格式，用于保存抽取出来指令等数据。
+
+源码
+GitHub：https://github.com/zylc369/ADVMP
